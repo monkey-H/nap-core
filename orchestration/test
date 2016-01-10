@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#ssh monkey@192.168.56.105 "docker stop nap-compose_web"
+#ssh monkey@192.168.56.105 "docker rm nap-compose_web"
+#
+#ssh monkey@192.168.56.105 "docker stop nap-compose_db"
+#ssh monkey@192.168.56.105 "docker rm nap-compose_db"
+#
+#ssh monkey@192.168.56.105 "docker stop nap-compose_he"
+#ssh monkey@192.168.56.105 "docker rm nap-compose_he"
+
+sudo rm /usr/local/bin/docker-compose
+
+sudo python setup.py clean
+sudo python setup.py install
+
+echo "============"
+
+#docker-compose up -d -f /home/monkey/Document/nap-compose
