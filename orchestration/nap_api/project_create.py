@@ -57,9 +57,9 @@ def create_project_from_url(username, password, project_name, url):
     db.commit()
     db.close()
 
-    return create_project_from_file(username, password, project_name, project_path)
+    return create_project_from_file(username, password, project_name, project_name)
 
-def create_project_from_filebrowser(username, password, file_path):
+def create_project_from_filebrowser(username, password, project_name, file_path):
     if not database_update.project_exists(username, password, project_name):
         return False, "Project: %s already exists! try another name and try again" % project_name
 
@@ -68,6 +68,8 @@ def create_project_from_filebrowser(username, password, file_path):
     cursor.execute("insert into project(name, url) values('%s', 'create from filebrowser')" % (project_name))
     db.commit()
     db.close()
+    
+    return create_project_from_file(username, password, project_name, file_path):
 
 #file_path include config.base_path, username, project_name
 def create_project_from_file(username, password, project_name, file_path):
@@ -75,12 +77,14 @@ def create_project_from_file(username, password, project_name, file_path):
     if not len(argv) == 0:
         return 'Argv', argv
     else:
-        return create_project_exceptions(username, password, file_path, project_name)
+        project_path = config.base_path + '/' + username + '/' + file_path
+        return create_project_exceptions(username, password, project_path, project_name)
 
 #file_path as before
 def get_argv(file_path, project_name):
-    original_file = open(file_path + '/docker-compose.yml')
-    temp_file = open(file_path + '/tmp.yml', 'w')
+    project_path = config.base_path + '/' + username + '/' + project_name
+    original_file = open(project_path + '/docker-compose.yml')
+    temp_file = open(project_path + '/tmp.yml', 'w')
 
     argv = []
     while 1:
@@ -97,8 +101,8 @@ def get_argv(file_path, project_name):
 
     original_file.close()
     temp_file.close()
-    os.remove(file_path + '/docker-compose.yml')
-    os.rename(file_path + '/tmp.yml', file_path + '/docker-compose.yml')
+    os.remove(project_path + '/docker-compose.yml')
+    os.rename(project_path + '/tmp.yml', project_path + '/docker-compose.yml')
 
     argv = list(set(argv))
     return argv
@@ -108,9 +112,10 @@ def replace_argv(username, password, file_path, project_name, argv):
     if not argv:
         return False, 'no argv given'
     else:
+        project_path = config.base_path + '/' + username + '/' + project_name
         for item in argv:
-            replace_string(file_path, item, argv[item])
-        return create_project_exceptions(username, password, file_path, project_name)
+            replace_string(project_path, item, argv[item])
+        return create_project_exceptions(username, password, project_path, project_name)
 
 def replace_string(file_path, key, value):
     original_file = open(file_path + '/docker-compose.yml')
