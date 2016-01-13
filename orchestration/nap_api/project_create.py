@@ -128,7 +128,7 @@ def replace_string(file_path, key, value):
         if not line:
             break;
         if key in line:
-            line = line.replace(key, value)
+            line = line.replace('##'+key+'##', value)
         temp_file.write(line)
     original_file.close()
     temp_file.close()
