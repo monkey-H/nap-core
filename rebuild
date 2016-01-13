@@ -9,7 +9,7 @@
 #ssh monkey@192.168.56.105 "docker stop nap-compose_he"
 #ssh monkey@192.168.56.105 "docker rm nap-compose_he"
 
-sudo rm /usr/local/bin/docker-compose
+sudo rm /usr/local/bin/nap-orchestration
 
 sudo python setup.py clean
 sudo python setup.py install

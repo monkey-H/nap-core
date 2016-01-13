@@ -1,14 +1,16 @@
-import database_update
+from orchestration.database import database_update
 import MySQLdb
 import re
 import os
 import logging
 import shutil
 
+from orchestration import config
+
 from orchestration.cli.new_main import new_main
 from git import Repo
 from git.exc import GitCommandError
-from database_update import roll_back
+from orchestration.database.database_update import roll_back
 from cStringIO import StringIO
 import traceback
 from orchestration.config.errors import ComposeFileNotFound
@@ -127,6 +129,7 @@ def replace_string(file_path, key, value):
 #
 def create_project_exceptions(username, password, project_path, project_name):
     try:
+        print project_path
         new_main(project_path, username, password)
     except KeyboardInterrupt:
         logs = roll_back(username, password, project_name)

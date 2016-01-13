@@ -26,7 +26,7 @@ def tuple_in_tuple(db_tuple):
 def create_user(username, password):
     for client in config.client_list:
         # still need mfsmount
-        a,b = commands.getstatusoutput("ssh %s@%s 'docker run -d --name %s -v %s/%s:%s %s'" % (config.hostname, client.split(":")[0], username + "_volume", config.project_path, username, config.container_path, volume_image))
+        a,b = commands.getstatusoutput("ssh %s@%s 'docker run -d --name %s -v %s/%s:%s %s'" % (config.hostname, client.split(":")[0], username + "_volume", config.project_path, username, config.container_path, config.volume_image))
 
     commands.getstatusoutput("ssh %s@%s 'docker network create -d overlay %s'" % (config.hostname, config.client_list[0].split(":")[0], username))
     commands.getstatusoutput("ssh %s@%s 'cd %s && mkdir %s'" % (config.hostname, config.client_list[0].split(":")[0], config.project_path, username))

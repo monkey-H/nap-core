@@ -22,7 +22,7 @@ from .utils import call_silently
 from .utils import is_mac
 from .utils import is_ubuntu
 
-from orchestration.database_update import get_machine
+from orchestration.database.database_update import get_machine
 
 log = logging.getLogger(__name__)
 

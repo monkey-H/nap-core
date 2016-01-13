@@ -8,7 +8,7 @@ import paramiko
 import os
 import MySQLdb
 import random
-from orchestration import database_update
+from orchestration.database import database_update
 
 from docker.errors import APIError
 from docker.errors import NotFound
