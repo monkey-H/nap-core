@@ -35,7 +35,7 @@ nap-core orchestration
 + 从filebrowser创建项目      
     方法名： create_project_from_file      
     方法位置： from compose import project_create      
-    方法参数： username, password, project_name, file_path      
+    方法参数： username, password, project_name     
     返回值： "Argv", list[] or "True" "sucess" or "False" "why "      
 
 + 删除项目      
@@ -53,5 +53,5 @@ nap-core orchestration
 + 填参数      
     方法名： replace_argv      
     方法位置： from compose import project_create      
-    方法参数： username, password, file_path, project_name, argv[]      
+    方法参数： username, password, project_name, argv[]      
     返回值： True "success create project " or False "create project failed and why"      
