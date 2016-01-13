@@ -59,7 +59,7 @@ def create_project_from_url(username, password, project_name, url):
 
     return create_project_from_file(username, password, project_name, project_name)
 
-def create_project_from_filebrowser(username, password, project_name, file_path):
+def create_project_from_filebrowser(username, password, project_name):
     if not database_update.project_exists(username, password, project_name):
         return False, "Project: %s already exists! try another name and try again" % project_name
 
@@ -69,19 +69,19 @@ def create_project_from_filebrowser(username, password, project_name, file_path)
     db.commit()
     db.close()
     
-    return create_project_from_file(username, password, project_name, file_path):
+    return create_project_from_file(username, password, project_name):
 
 #file_path include config.base_path, username, project_name
-def create_project_from_file(username, password, project_name, file_path):
-    argv = get_argv(file_path, project_name)
+def create_project_from_file(username, password, project_name):
+    argv = get_argv(username, project_name)
     if not len(argv) == 0:
         return 'Argv', argv
     else:
-        project_path = config.base_path + '/' + username + '/' + file_path
+        project_path = config.base_path + '/' + username + '/' + project_name
         return create_project_exceptions(username, password, project_path, project_name)
 
 #file_path as before
-def get_argv(file_path, project_name):
+def get_argv(username, project_name):
     project_path = config.base_path + '/' + username + '/' + project_name
     original_file = open(project_path + '/docker-compose.yml')
     temp_file = open(project_path + '/tmp.yml', 'w')
@@ -111,7 +111,7 @@ def get_argv(file_path, project_name):
     return argvs
 
 #file_path as before
-def replace_argv(username, password, file_path, project_name, argv):
+def replace_argv(username, password, project_name, argv):
     if not argv:
         return False, 'no argv given'
     else:
