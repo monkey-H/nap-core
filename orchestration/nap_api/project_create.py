@@ -57,7 +57,7 @@ def create_project_from_url(username, password, project_name, url):
     db.commit()
     db.close()
 
-    return create_project_from_file(username, password, project_name, project_name)
+    return create_project_from_file(username, password, project_name)
 
 def create_project_from_filebrowser(username, password, project_name):
     if not database_update.project_exists(username, password, project_name):
@@ -69,7 +69,7 @@ def create_project_from_filebrowser(username, password, project_name):
     db.commit()
     db.close()
     
-    return create_project_from_file(username, password, project_name):
+    return create_project_from_file(username, password, project_name)
 
 #file_path include config.base_path, username, project_name
 def create_project_from_file(username, password, project_name):
