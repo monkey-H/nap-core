@@ -105,7 +105,10 @@ def get_argv(file_path, project_name):
     os.rename(project_path + '/tmp.yml', project_path + '/docker-compose.yml')
 
     argv = list(set(argv))
-    return argv
+    argvs = []
+    for item in argv:
+        argvs.append(item.split("##")[1])
+    return argvs
 
 #file_path as before
 def replace_argv(username, password, file_path, project_name, argv):
