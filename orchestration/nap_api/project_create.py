@@ -141,36 +141,36 @@ def create_project_exceptions(username, password, project_path, project_name):
         new_main(project_path, username, password)
     except KeyboardInterrupt:
         logs = roll_back(username, password, project_name)
-        shutil.rmtree(project_path)
+        # shutil.rmtree(project_path)
         return False, logs + 'Keyboard Aborting'
     except (UserError, NoSuchService, ConfigurationError, legacy.LegacyError) as e:
         logs = roll_back(username, password, project_name)
-        shutil.rmtree(project_path)
+        # shutil.rmtree(project_path)
         return False, logs + e.msg
     except APIError as e:
         logs = roll_back(username, password, project_name)
-        shutil.rmtree(project_path)
+        # shutil.rmtree(project_path)
         log.error(e.explanation)
         return False, logs + e.explanation
         # sys.exit(1)
     except BuildError as e:
         logs = roll_back(username, password, project_name)
         log.error("Service '%s' failed to build: %s" % (e.service.name, e.reason))
-        shutil.rmtree(project_path)
+        # shutil.rmtree(project_path)
         return False, logs + "Service '%s' failed to build: %s" % (e.service.name, e.reason)
     except StreamOutputError as e:
         logs = roll_back(username, password, project_name)
         log.error(e)
-        shutil.rmtree(project_path)
+        # shutil.rmtree(project_path)
         return False, e
     except NeedsBuildError as e:
         logs = roll_back(username, password, project_name)
         log.error("Service '%s' needs to be built, but --no-build was passed." % e.service.name)
-        shutil.rmtree(project_path)
+        # shutil.rmtree(project_path)
         return False, (logs + "Service '%s' needs to be built, but --no-build was passed." % e.service.name)
     except ReadTimeout as e:
         logs = roll_back(username, password, project_name)
-        shutil.rmtree(project_path)
+        # shutil.rmtree(project_path)
         log.error(
             "An HTTP request took too long to complete. Retry with --verbose to obtain debug information.\n"
             "If you encounter this issue regularly because of slow network conditions, consider setting "
