@@ -9,6 +9,8 @@ import os
 import MySQLdb
 import random
 from orchestration.database import database_update
+from orchestration import moosefs
+from orchestration import network
 
 from docker.errors import APIError
 from docker.errors import NotFound
@@ -132,7 +134,8 @@ class Project(object):
             # a = database(user_name, user_password)
             # service_dict['volumes_from'] = a.get_volume()
 
-            service_dict['volumes_from'] = database_update.get_volume(user_name, user_password)
+            # service_dict['volumes_from'] = database_update.get_volume(user_name, user_password)
+            service_dict['volumes_from'] = moosefs.commands.get_volume(user_name, user_password)
 
             volumes_from = project.nap_get_volumes_from(service_dict, cc)
             net = project.nap_get_net(service_dict)
@@ -191,7 +194,8 @@ class Project(object):
             # service_dict['volumes_from'] = a.get_volume()
 
             # log.info(a.get_volume())
-            service_dict['volumes_from'] = database_update.get_volume(username, password)
+            # service_dict['volumes_from'] = database_update.get_volume(username, password)
+            service_dict['volumes_from'] = moosefs.commands.get_volume(username, password)
 
             log.info(service_dict)
 
@@ -404,7 +408,8 @@ class Project(object):
     def nap_net(self, service_dict, username, password):
         # a = database(username, password)
         # net = a.get_net()
-        net = database_update.get_net(username, password)
+        # net = database_update.get_net(username, password)
+        net = network.commands.get_net(username, password)
 
         return Net(net)
 
@@ -413,7 +418,8 @@ class Project(object):
         # a = database(sys.argv[3], sys.argv[4])
         # net = a.get_net()
 
-        net = database_update.get_net(sys.argv[3], sys.argv[4])
+        # net = database_update.get_net(sys.argv[3], sys.argv[4])
+        net = network.commands.get_net(sys.argv[3], sys.argv[4])
 
         return Net(net)
 

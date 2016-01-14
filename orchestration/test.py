@@ -9,7 +9,7 @@ from nap_api import project_create
 #print app_info.delete_user("mongo")
 #
 print app_info.destroy_project('mongo', 'mongo', 'test')
-print project_create.create_project_from_url('mongo', 'mongo', 'test', 'git@github.com:monkey-H/web_app.git')
+print project_create.create_project_from_url('mongo', 'mongo', 'test', 'git@github.com:monkey-H/test_argv.git')
 
 #di = {}
 #for item in data[1]:
