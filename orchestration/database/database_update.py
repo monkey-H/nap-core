@@ -69,6 +69,7 @@ def roll_back(username, password, project_name):
                 cli.stop(container=full_name)
                 cli.remove_container(container=full_name)
         cursor.execute("delete from service where project='%s'" % project_name)
+        cursor.execute("delete from project where name='%s'" % project_name)
         db.commit()
         db.close()
 

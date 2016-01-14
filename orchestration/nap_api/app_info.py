@@ -155,8 +155,8 @@ def project_list(username, password, begin, length):
     return data
 
 def destroy_project(username, password, project_name):
-    if os.path.exists('%s/%s/%s' % (config.project_path, username, project_name)):
-        shutil.rmtree('%s/%s/%s' % (config.project_path, username, project_name))
+    # if os.path.exists('%s/%s/%s' % (config.project_path, username, project_name)):
+    #     shutil.rmtree('%s/%s/%s' % (config.project_path, username, project_name))
 
     db = MySQLdb.connect(config.database_url, username, password, username)
     cursor = db.cursor()
