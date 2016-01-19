@@ -20,7 +20,7 @@ class Moosefs(object):
 	def get_volume(self, username, password):
 	    db = MySQLdb.connect(config.database_url, username, password, username)
 	    cursor = db.cursor()
-    cursor.execute("select volume from info where name='%s'" % username)
-    data = cursor.fetchone()
-    db.close()
-    return data
+	    cursor.execute("select volume from info where name='%s'" % username)
+	    data = cursor.fetchone()
+	    db.close()
+	    return data

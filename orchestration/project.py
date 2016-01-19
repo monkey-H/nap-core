@@ -168,8 +168,8 @@ class Project(object):
         Construct a ServiceCollection from a list of dicts representing services.
         """
         project = cls(name, [], client_list, use_networking=use_networking, network_driver=network_driver)
-        project.net = Network(username, password)
-        project.volume = Moosefs(username, password)
+        project.net = Network(username, password).net
+        project.volume = Moosefs(username, password).volume
 
         if use_networking:
             remove_links(service_dicts)
@@ -205,6 +205,7 @@ class Project(object):
             # service_dict['volumes_from'] = database_update.get_volume(username, password)
             # service_dict['volumes_from'] = mfs_commands.get_volume(username, password)
             service_dict['volumes_from'] = project.volume
+            print project.volume
 
             log.info(service_dict)
 
