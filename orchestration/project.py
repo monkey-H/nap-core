@@ -12,6 +12,9 @@ from orchestration.database import database_update
 from orchestration.moosefs import commands as mfs_commands
 from orchestration.network import commands as net_commands
 
+from orchestration.moosefs.commands import Moosefs
+from orchestration.network.commands import Network
+
 from docker.errors import APIError
 from docker.errors import NotFound
 
@@ -96,6 +99,8 @@ class Project(object):
         self.client = client
         self.use_networking = use_networking
         self.network_driver = network_driver
+        self.net = ""
+        self.volume = ""
 
     def labels(self, one_off=False):
         return [
@@ -136,6 +141,7 @@ class Project(object):
 
             # service_dict['volumes_from'] = database_update.get_volume(user_name, user_password)
             service_dict['volumes_from'] = mfs_commands.get_volume(user_name, user_password)
+            service_dict['volumes_from'] = project.volume
 
             volumes_from = project.nap_get_volumes_from(service_dict, cc)
             net = project.nap_get_net(service_dict)
@@ -162,6 +168,8 @@ class Project(object):
         Construct a ServiceCollection from a list of dicts representing services.
         """
         project = cls(name, [], client_list, use_networking=use_networking, network_driver=network_driver)
+        project.net = Network(username, password)
+        project.volume = Moosefs(username, password)
 
         if use_networking:
             remove_links(service_dicts)
@@ -195,13 +203,15 @@ class Project(object):
 
             # log.info(a.get_volume())
             # service_dict['volumes_from'] = database_update.get_volume(username, password)
-            service_dict['volumes_from'] = mfs_commands.get_volume(username, password)
+            # service_dict['volumes_from'] = mfs_commands.get_volume(username, password)
+            service_dict['volumes_from'] = project.volume
 
             log.info(service_dict)
 
             volumes_from = project.nap_get_volumes_from(service_dict, cc)
             # net = Net(a.get_net())
-            net = project.nap_net(service_dict, username, password)
+            # net = project.nap_net(service_dict, username, password)
+            net = Net(project.net)
 
             database_update.create_service(username, password, service_dict['container_name'], index, name)
 
@@ -409,6 +419,7 @@ class Project(object):
         # a = database(username, password)
         # net = a.get_net()
         # net = database_update.get_net(username, password)
+        net = net_commands.get_net(username, password)
         net = net_commands.get_net(username, password)
 
         return Net(net)
