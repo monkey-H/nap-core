@@ -13,7 +13,7 @@ from orchestration.moosefs import commands as mfs_commands
 from orchestration.network import commands as net_commands
 
 from orchestration.moosefs.commands import Moosefs
-from orchestration.network.commands import Network
+from orchestration.network.commands import Net
 
 from docker.errors import APIError
 from docker.errors import NotFound
@@ -26,13 +26,10 @@ from .const import LABEL_PROJECT
 from .const import LABEL_SERVICE
 from .container import Container
 from .legacy import check_for_legacy_containers
-from .service import ContainerNet
 from .service import ConvergenceStrategy
-from .service import Net
 from .service import parse_volume_from_spec
 from .service import nap_parse_volume_from_spec
 from .service import Service
-from .service import ServiceNet
 from .service import VolumeFromSpec
 from .utils import parallel_execute
 
@@ -108,59 +105,6 @@ class Project(object):
             '{0}={1}'.format(LABEL_ONE_OFF, "True" if one_off else "False"),
         ]
 
-    @classmethod
-    def from_dicts(cls, name, service_dicts, client_list, use_networking=False, network_driver=None):
-        """
-        Construct a ServiceCollection from a list of dicts representing services.
-        """
-        project = cls(name, [], client_list, use_networking=use_networking, network_driver=network_driver)
-
-        if use_networking:
-            remove_links(service_dicts)
-
-    	for srv_dict in service_dicts:
-    	    command = srv_dict['command']
-    	    for s_dict in service_dicts:
-    		before = s_dict['container_name']
-    		after = name + "_" + before
-    		command = command.replace(before, after)
-    	    srv_dict['command'] = command
-
-        for service_dict in sort_service_dicts(service_dicts):
-            l = project.nap_get_links(service_dict)
-            if len(l):
-                cls.links.append(l);
-            index = random.randint(0,1)
-            cc = client_list[index]
-
-    	    user_name = sys.argv[3]
-    	    user_password = sys.argv[4]
-
-            # a = database(user_name, user_password)
-            # service_dict['volumes_from'] = a.get_volume()
-
-            # service_dict['volumes_from'] = database_update.get_volume(user_name, user_password)
-            service_dict['volumes_from'] = mfs_commands.get_volume(user_name, user_password)
-            service_dict['volumes_from'] = project.volume
-
-            volumes_from = project.nap_get_volumes_from(service_dict, cc)
-            net = project.nap_get_net(service_dict)
-
-            database_update.create_service(user_name, user_password, service_dict['container_name'], index, name)
-
-            service_dict['name'] = user_name + "_" + name + "_" + service_dict['name']
-            service_dict['container_name'] = user_name + "_" + name + "_" + service_dict['container_name']
-
-            project.services.append(
-                Service(
-                    client_list=cc,
-                    project=name,
-                    use_networking=use_networking,
-                    links=[],
-                    net=net,
-                    volumes_from=volumes_from,
-                    **service_dict))
-        return project
 
     @classmethod
     def nap_from_dicts(cls, username, password, name, service_dicts, client_list, use_networking=False, network_driver=None):
@@ -168,7 +112,7 @@ class Project(object):
         Construct a ServiceCollection from a list of dicts representing services.
         """
         project = cls(name, [], client_list, use_networking=use_networking, network_driver=network_driver)
-        project.net = Network(username, password).net
+        project.net = Net(username, password)
         project.volume = Moosefs(username, password).volume
 
         if use_networking:
@@ -212,7 +156,7 @@ class Project(object):
             volumes_from = project.nap_get_volumes_from(service_dict, cc)
             # net = Net(a.get_net())
             # net = project.nap_net(service_dict, username, password)
-            net = Net(project.net)
+            net = project.net
 
             database_update.create_service(username, password, service_dict['container_name'], index, name)
 
@@ -299,27 +243,6 @@ class Project(object):
             [uniques.append(s) for s in services if s not in uniques]
             return uniques
 
-    def get_links(self, service_dict):
-        links = []
-        if 'links' in service_dict:
-            for link in service_dict.get('links', []):
-                if ':' in link:
-                    service_name, link_name = link.split(':', 1)
-                    # log.info("get_links- service name: " + service_name)
-                    # log.info("get_links- link name: " + link_name)
-                else:
-                    service_name, link_name = link, None
-                try:
-                    links.append((self.get_service(service_name), link_name))
-                    # log.info('get_links- service_name %s', self.get_service(service_name))
-                except NoSuchService:
-                    raise ConfigurationError(
-                        'Service "%s" has a link to service "%s" which does not '
-                        'exist.' % (service_dict['name'], service_name))
-            del service_dict['links']
-        #log.info('len: %d',len(links))
-        return links
-
 #return a->b like [(a,b,link1),(a,c,link2)]
     def nap_get_links(self, service_dict):
         links = []
@@ -341,31 +264,6 @@ class Project(object):
             del service_dict['links']
         #log.info('len: %d',len(links))
         return links
-
-    def get_volumes_from(self, service_dict):
-        volumes_from = []
-        if 'volumes_from' in service_dict:
-            for volume_from_config in service_dict.get('volumes_from', []):
-                volume_from_spec = parse_volume_from_spec(volume_from_config)
-                # Get service
-                try:
-                    service_name = self.get_service(volume_from_spec.source)
-                    volume_from_spec = VolumeFromSpec(service_name, volume_from_spec.mode)
-                except NoSuchService:
-                    try:
-                        container_name = Container.from_id(self.client, volume_from_spec.source)
-                        volume_from_spec = VolumeFromSpec(container_name, volume_from_spec.mode)
-                    except APIError:
-                        raise ConfigurationError(
-                            'Service "%s" mounts volumes from "%s", which is '
-                            'not the name of a service or container.' % (
-                                service_dict['name'],
-                                volume_from_spec.source))
-                volumes_from.append(volume_from_spec)
-            del service_dict['volumes_from']
-        # volume_from_spec = nap_parse_volume_from_spec()
-        # volumes_from.append(volume_from_spec)
-        return volumes_from
 
     def nap_get_volumes_from(self, service_dict, client):
         volumes_from = []
@@ -391,49 +289,6 @@ class Project(object):
         # volume_from_spec = nap_parse_volume_from_spec()
         # volumes_from.append(volume_from_spec)
         return volumes_from
-
-    def get_net(self, service_dict):
-        net = service_dict.pop('net', None)
-        if not net:
-            if self.use_networking:
-                return Net(self.name)
-            return Net(None)
-
-        net_name = get_service_name_from_net(net)
-        if not net_name:
-            return Net(net)
-
-        try:
-            return ServiceNet(self.get_service(net_name))
-        except NoSuchService:
-            pass
-        try:
-            return ContainerNet(Container.from_id(self.client, net_name))
-        except APIError:
-            raise ConfigurationError(
-                'Service "%s" is trying to use the network of "%s", '
-                'which is not the name of a service or container.' % (
-                    service_dict['name'],
-                    net_name))
-
-    def nap_net(self, service_dict, username, password):
-        # a = database(username, password)
-        # net = a.get_net()
-        # net = database_update.get_net(username, password)
-        net = net_commands.get_net(username, password)
-        net = net_commands.get_net(username, password)
-
-        return Net(net)
-
-    def nap_get_net(self, service_dict):
-
-        # a = database(sys.argv[3], sys.argv[4])
-        # net = a.get_net()
-
-        # net = database_update.get_net(sys.argv[3], sys.argv[4])
-        net = net_commands.get_net(sys.argv[3], sys.argv[4])
-
-        return Net(net)
 
     def start(self, service_names=None, **options):
         for service in self.get_services(service_names):

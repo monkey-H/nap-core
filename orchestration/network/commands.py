@@ -1,13 +1,21 @@
 import MySQLdb
 from orchestration import config
 
-class Network(object):
+class Net(object):
 	"""
 	network for a project.
 	"""
 
+	service_name = None
+
 	def __init__(self, username, password):
 		self.net = self.get_net(username, password)
+
+	@property
+	def id(self):
+		return self.net
+
+	mode = id
 
 	def set_net(self, username, password):
 		db = MySQLdb.connect(config.database_url, username, password, username)

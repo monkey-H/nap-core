@@ -35,6 +35,8 @@ from .progress_stream import StreamOutputError
 from .utils import json_hash
 from .utils import parallel_execute
 
+from orchestration.network.commands import Net
+
 
 log = logging.getLogger(__name__)
 
@@ -809,61 +811,6 @@ class Service(object):
                 raise
             else:
                 log.error(six.text_type(e))
-
-
-class Net(object):
-    """A `standard` network mode (ex: host, bridge)"""
-
-    service_name = None
-
-    def __init__(self, net):
-        self.net = net
-
-    @property
-    def id(self):
-        return self.net
-
-    mode = id
-
-
-class ContainerNet(object):
-    """A network mode that uses a container's network stack."""
-
-    service_name = None
-
-    def __init__(self, container):
-        self.container = container
-
-    @property
-    def id(self):
-        return self.container.id
-
-    @property
-    def mode(self):
-        return 'container:' + self.container.id
-
-
-class ServiceNet(object):
-    """A network mode that uses a service's network stack."""
-
-    def __init__(self, service):
-        self.service = service
-
-    @property
-    def id(self):
-        return self.service.name
-
-    service_name = id
-
-    @property
-    def mode(self):
-        containers = self.service.containers()
-        if containers:
-            return 'container:' + containers[0].id
-
-        log.warn("Service %s is trying to use reuse the network stack "
-                 "of another service that is not running." % (self.id))
-        return None
 
 
 # Names
