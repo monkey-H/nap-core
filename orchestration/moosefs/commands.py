@@ -1,5 +1,5 @@
-import MySQLdb
 from orchestration import config
+from orchestration.database import database_update
 
 class Moosefs(object):
 	"""
@@ -10,17 +10,7 @@ class Moosefs(object):
 		self.volume = self.get_volume(username, password)
 
 	def set_volume(self, username, password):
-		db = MySQLdb.connect(config.database_url, username, password, username)
-		cursor = db.cursor()
-		cursor.execute("insert into info(volume) values(%s) where name='%s'" % (username, username))
-		db.commit()
-		db.close()
-		return True
+		database_update.set_volume(username, password)
 
 	def get_volume(self, username, password):
-	    db = MySQLdb.connect(config.database_url, username, password, username)
-	    cursor = db.cursor()
-	    cursor.execute("select volume from info where name='%s'" % username)
-	    data = cursor.fetchone()
-	    db.close()
-	    return data
+		return database_update.get_volume(username, password)

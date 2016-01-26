@@ -1,5 +1,5 @@
-import MySQLdb
 from orchestration import config
+from orchestration.database import database_update
 
 class Net(object):
 	"""
@@ -18,17 +18,7 @@ class Net(object):
 	mode = id
 
 	def set_net(self, username, password):
-		db = MySQLdb.connect(config.database_url, username, password, username)
-		cursor = db.cursor()
-		cursor.execute("insert into info(net) values(%s) where name='%s'" % (username, username))
-		db.commit()
-		db.close()
-		return True
+		database_update.set_net(username, password)
 
 	def get_net(self, username, password):
-	     db = MySQLdb.connect(config.database_url, username, password, username)
-	     cursor = db.cursor()
-	     cursor.execute("select net from info where name='%s'" % username)
-	     data = cursor.fetchone()
-	     db.close()
-	     return data[0]
+		return database_update.get_net(username, password)
