@@ -63,6 +63,8 @@ def delete_service(username, password, project_name):
     db = MySQLdb.connect(config.database_url, username, password, username)
     cursor = db.cursor()
     cursor.execute("delete from service where project = '%s'" % project_name)
+    db.commit()
+    db.close()
 
 def project_exists(username, password, project_name):
     db = MySQLdb.connect(config.database_url, username, password, username)
@@ -78,9 +80,9 @@ def roll_back(username, password, project_name):
     cursor = db.cursor()
 
     logs = ''
-    service_list = service_list(username, password, project_name)
-    if not service_list == None:
-        for service_name in service_list:
+    srv_list = service_list(username, password, project_name)
+    if srv_list:
+        for service_name in srv_list:
             url = machine_ip(username, password, project_name, service_name)
             if url == '-':
                 continue
@@ -109,6 +111,9 @@ def machine_ip(username, password, project_name, service_name):
     cursor = db.cursor()
     cursor.execute("select machine from service where name = '%s' and project = '%s'" % (service_name, project_name))
     data = cursor.fetchone()
+    print project_name
+    print service_name
+    print data
     if data == None:
         db.close()
         return '-'

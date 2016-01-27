@@ -102,9 +102,7 @@ def destroy_project(username, password, project_name):
     # if os.path.exists('%s/%s/%s' % (config.project_path, username, project_name)):
     #     shutil.rmtree('%s/%s/%s' % (config.project_path, username, project_name))
 
-    database_update.delete_project(username, password, project_name)
     data = database_update.service_list(username, password, project_name)
-    database_update.delete_service(username, password, project_name)
 
     if data:
         for service_name in data:
@@ -116,6 +114,9 @@ def destroy_project(username, password, project_name):
             if container_exists(cli, full_name):
                 cli.stop(container=full_name)
                 cli.remove_container(container=full_name)
+
+    database_update.delete_project(username, password, project_name)
+    database_update.delete_service(username, password, project_name)
 
     return True, 'Destroy project: %s success' % project_name
 
