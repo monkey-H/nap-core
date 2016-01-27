@@ -61,7 +61,7 @@ def service_list(username, password, project_name):
 
     srv_list = []
     for service_name in name_list:
-        url = machine_ip(username, password, project_name, service_name)
+        url = database_update.machine_ip(username, password, project_name, service_name)
         cli = Client(base_url=url, version=config.c_version)
         full_name = username + config.split_mark + project_name + config.split_mark + service_name
         if not container_exists(cli, full_name):

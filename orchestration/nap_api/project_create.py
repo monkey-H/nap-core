@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 
 #git clone from url into file
 def create_project_from_url(username, password, project_name, url):
-    if not database_update.project_exists(username, password, project_name):
+    if database_update.project_exists(username, password, project_name):
         return False, "Project: %s already exists! try another name and try again" % project_name
 
     if os.path.exists('%s/%s/%s' % (config.base_path, username, project_name)):
@@ -50,15 +50,15 @@ def create_project_from_url(username, password, project_name, url):
     except:
         return False, "git clone error, please connect administrator for information"
 
-    database_update.create_project(username, password, project_name)
+    database_update.create_project(username, password, project_name, url)
 
     return create_project_from_file(username, password, project_name)
 
 def create_project_from_filebrowser(username, password, project_name):
-    if not database_update.project_exists(username, password, project_name):
+    if database_update.project_exists(username, password, project_name):
         return False, "Project: %s already exists! try another name and try again" % project_name
 
-    database_update.create_project(username, password, project_name)
+    database_update.create_project(username, password, project_name, "create from filebrowser")
 
     return create_project_from_file(username, password, project_name)
 
