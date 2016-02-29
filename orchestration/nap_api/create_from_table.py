@@ -1,6 +1,7 @@
 from orchestration.database import database_update
 from orchestration import config
 import os
+import shutil
 from git import Repo
 
 def create_project_from_table(username, password, project_name, table):
@@ -16,21 +17,39 @@ def create_project_from_table(username, password, project_name, table):
     compose_file = open(project_path + '/docker-compose.yml', 'w')
     for service in table:
         if not "service_name" in service:
+            shutil.rmtree(project_path + '/docker-compose.yml')
             return False, "service does not has a name"
 
         compose_file.write(service["service_name"] + ":\n")
 
         if not "type" in service:
+            shutil.rmtree(project_path + '/docker-compose.yml')
             return False, "service: %s does not has a type" % service["service_name"]
 
         if service["type"] == "mpi":
             compose_file.write("  image: docker.iwanna.xyz:5000/mpi:v1\n")
+            compose_file.write("  container_name: %s-master\n" % service["service_name"])
+
+            if not 'command' in service:
+                service['command'] = '/user/sbin/sshd -D'
+
+            if "slaves" in service:
+                slaves = service['slaves']
+            else:
+                slaves = 1
+
+            links = []
+            for i in range(int(slaves)):
+                links.append('%s-slave%d' % (service['service_name', str(i)))
+            service['links'] = links
+
             write_yml(compose_file, project_path, service)
-            slaves = service['slaves']
+
             for i in range(int(slaves)):
                 compose_file.write("slave" + str(i) + ':\n')
                 compose_file.write("  image: docker.iwanna.xyz:5000/mpi:v1\n")
                 compose_file.write("  command: \'/usr/sbin/sshd -D\'\n")
+                compose_file.write("  container_name: %s-slave%d\n" % (service['service_name' , str(i)))
             continue
 
         if service["type"] == "mapreduce":
